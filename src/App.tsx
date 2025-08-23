@@ -6,6 +6,7 @@ import Quiz from './components/Quiz.tsx';
 import Results from './components/Results.tsx';
 import Feedback from './components/Feedback.tsx';
 import EarlyAccess from './components/EarlyAccess.tsx';
+import { supabaseReady } from './lib/supabase';
 
 export interface QuizAnswer {
   questionId: number;
@@ -152,6 +153,23 @@ function App() {
   const handleEarlyAccessCancel = () => {
     setCurrentPage(quizAnswers.length ? 'results' : 'landing');
   };
+
+  if (!supabaseReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-[#f9f0df] via-[#f9f0df] to-[#f5ead6]">
+        <div className="max-w-md w-full bg-white/90 rounded-2xl shadow-xl p-6 text-center space-y-4">
+          <h1 className="text-xl font-bold">Configuration Missing</h1>
+          <p className="text-gray-700 text-sm">Environment variables <code>VITE_SUPABASE_URL</code> and/or <code>VITE_SUPABASE_ANON_KEY</code> are not set at build time.</p>
+          <ol className="text-left text-xs list-decimal list-inside space-y-1 text-gray-600">
+            <li>Add them in a root <code>.env</code> file locally (not inside <code>src/</code>).</li>
+            <li>On Netlify: Site Settings → Environment Variables → add both (names must start with VITE_).</li>
+            <li>Redeploy the site.</li>
+          </ol>
+          <p className="text-xs text-gray-500">This message only appears when variables are missing.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
   <div className="min-h-screen bg-gradient-to-br from-[#f9f0df] via-[#f9f0df] to-[#f5ead6]">
