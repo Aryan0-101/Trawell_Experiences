@@ -43,3 +43,31 @@ export async function hasQuiz(email: string) {
   const data = await res.json();
   return Boolean(data?.exists);
 }
+
+export async function hasStory(email: string) {
+  const res = await fetch(`${API_BASE}/api/users/${encodeURIComponent(email)}/story/exists`);
+  if (!res.ok) throw new Error('Failed to check story status');
+  const data = await res.json();
+  return Boolean(data?.exists);
+}
+
+export async function hasEarlyAccess(email: string) {
+  const res = await fetch(`${API_BASE}/api/users/${encodeURIComponent(email)}/early-access/exists`);
+  if (!res.ok) throw new Error('Failed to check early access status');
+  const data = await res.json();
+  return Boolean(data?.exists);
+}
+
+export async function joinEarlyAccess(email: string) {
+  const res = await fetch(`${API_BASE}/api/users/${encodeURIComponent(email)}/early-access`, {
+    method: 'POST'
+  });
+  if (!res.ok) throw new Error('Failed to join early access');
+  return await res.json();
+}
+
+export async function userSummary(email: string) {
+  const res = await fetch(`${API_BASE}/api/users/${encodeURIComponent(email)}/summary`);
+  if (!res.ok) throw new Error('Failed to fetch user summary');
+  return await res.json() as { found: boolean; quizCount: number; storyCount: number };
+}

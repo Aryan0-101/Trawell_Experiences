@@ -6,9 +6,10 @@ interface LandingPageProps {
   onStartQuiz: () => void;
   onOpenFeedback?: () => void;
   userDetails: UserDetails | null;
+  hasTakenQuiz?: boolean;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz, onOpenFeedback, userDetails }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz, onOpenFeedback, userDetails, hasTakenQuiz }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -20,7 +21,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz, onOpenFeedback, 
           <div className="flex-1 flex items-center justify-end gap-6 min-w-0">
             {userDetails && (
               <div className="hidden md:flex items-center space-x-2 text-gray-600 whitespace-nowrap">
-                <span>Welcome, {userDetails.name}!</span>
+                <span>{hasTakenQuiz ? 'Welcome back,' : 'Welcome,'} {userDetails.name}!</span>
               </div>
             )}
             <nav className="hidden md:flex items-center space-x-8">
@@ -41,7 +42,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz, onOpenFeedback, 
           
               <h1 className="text-5xl md:text-6xl font-bold text-gray-800 leading-tight">
                 Help Us Understand
-                <span className="bg-gradient-to-r from-[#013a4e] to-[#c45510] bg-clip-text text-transparent block">
+                <span className="bg-gradient-to-r from-[#16434b] to-[#c55510] bg-clip-text text-transparent block">
                   Your Travel Needs
                 </span>
               </h1>
@@ -55,9 +56,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz, onOpenFeedback, 
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={onStartQuiz}
-                className="group bg-gradient-to-r from-[#01464e] to-[#c45510] hover:from-[#013a4e]/90 hover:to-[#c45510]/90 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+                className="group bg-gradient-to-r from-[#73947C] to-[#16434B] hover:from-[#16434B]/90 hover:to-[#427556]/90 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
               >
-                Take a Quick Quiz
+                {hasTakenQuiz ? 'Retake Quiz' : 'Take a Quick Quiz'}
                 <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200 inline-block">→</span>
               </button>
               <button
@@ -73,7 +74,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz, onOpenFeedback, 
           <div className="relative">
             <div className="bg-white rounded-3xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
               <div className="space-y-6">
-                <div className="bg-gradient-to-r from-[#013a4e] to-[#c45510] rounded-2xl p-6 text-white">
+                <div className="bg-[#73947C] rounded-2xl p-6 text-white">
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                       <Star className="w-6 h-6" />

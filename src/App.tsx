@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { upsertUser, saveQuiz, saveStory, hasQuiz } from './lib/api';
+import { useState, useEffect } from 'react';
+import { upsertUser, saveQuiz, saveStory, hasStory, hasEarlyAccess, userSummary, joinEarlyAccess } from './lib/api';
 import UserDetailsForm from './components/UserDetailsForm.tsx';
 import LandingPage from './components/LandingPage.tsx';
 import Quiz from './components/Quiz.tsx';
@@ -22,11 +22,24 @@ function App() {
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswer[]>([]);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [showEarlySupporterToast, setShowEarlySupporterToast] = useState(false);
+  // Local flags to enforce duplicate submission prompts even if network check fails
+  // Quiz taken flag (server + local)
+  const [quizTaken, setQuizTaken] = useState(false);
+  const [hasSubmittedStory, setHasSubmittedStory] = useState(false);
+  const [hasJoinedEarlyAccess, setHasJoinedEarlyAccess] = useState(false);
 
   const handleUserDetailsSubmitted = async (details: UserDetails) => {
-    setUserDetails(details);
+    const normalized = { ...details, email: details.email.toLowerCase() };
+    setUserDetails(normalized);
     try {
-      await upsertUser(details);
+      await upsertUser(normalized);
+      // Prefetch summary for quiz status & early access status
+      const [summary, early] = await Promise.all([
+        userSummary(normalized.email),
+        hasEarlyAccess(normalized.email).catch(() => false)
+      ]);
+      setQuizTaken(summary.quizCount > 0);
+      setHasJoinedEarlyAccess(early);
     } catch (e) {
       console.warn('Failed to sync user to server', e);
     }
@@ -34,28 +47,17 @@ function App() {
   };
 
   const handleStartQuiz = async () => {
-    // Check if already submitted and confirm re-take
-    if (userDetails?.email) {
-      try {
-        const exists = await hasQuiz(userDetails.email);
-        if (exists) {
-          const confirmResubmit = window.confirm('You have already submitted the quiz. Do you want to retake and resubmit?');
-          if (!confirmResubmit) return;
-        }
-      } catch (e) {
-        // Non-blocking if check fails
-        console.warn('Quiz existence check failed', e);
-      }
-    }
+    // Simply navigate; duplicate awareness handled by LandingPage display
     setCurrentPage('quiz');
     setQuizAnswers([]);
   };
 
   const handleQuizComplete = async (answers: QuizAnswer[]) => {
     setQuizAnswers(answers);
-    if (userDetails?.email) {
+    setQuizTaken(true);
+  if (userDetails?.email) {
       try {
-        await saveQuiz(userDetails.email, answers);
+    await saveQuiz(userDetails.email.toLowerCase(), answers);
       } catch (e) {
         console.warn('Failed to save quiz to server', e);
       }
@@ -68,7 +70,15 @@ function App() {
     setQuizAnswers([]);
   };
 
-  const handleOpenFeedback = () => {
+  const handleOpenFeedback = async () => {
+    let serverExists = false;
+  if (userDetails?.email) {
+      try { serverExists = await hasStory(userDetails.email); } catch (e) { console.warn('Story existence check failed', e); }
+    }
+  if (hasSubmittedStory || serverExists) {
+      const proceed = window.confirm('You already submitted a story. Overwrite it?');
+      if (!proceed) return;
+    }
     setCurrentPage('feedback');
   };
 
@@ -81,9 +91,10 @@ function App() {
     } catch {
       // ignore storage errors
     }
-    if (userDetails?.email) {
+    setHasSubmittedStory(true);
+  if (userDetails?.email) {
       try {
-        await saveStory(userDetails.email, text);
+    await saveStory(userDetails.email.toLowerCase(), text);
       } catch (e) {
         console.warn('Failed to save story to server', e);
       }
@@ -95,11 +106,19 @@ function App() {
     setCurrentPage(quizAnswers.length ? 'results' : 'landing');
   };
 
-  const handleOpenEarlyAccess = () => {
+  const handleOpenEarlyAccess = async () => {
+    let serverExists = false;
+  if (userDetails?.email) {
+      try { serverExists = await hasEarlyAccess(userDetails.email); } catch (e) { console.warn('Early access existence check failed', e); }
+    }
+    if (hasJoinedEarlyAccess || serverExists) {
+      const proceed = window.confirm('You are already on the early access list. Open it again?');
+      if (!proceed) return;
+    }
     setCurrentPage('earlyAccess');
   };
 
-  const handleEarlyAccessSubmitted = () => {
+  const handleEarlyAccessSubmitted = async () => {
     try {
       const key = 'trawell_early_access';
       const existing = JSON.parse(localStorage.getItem(key) || '[]');
@@ -108,9 +127,27 @@ function App() {
     } catch {
       // ignore storage errors
     }
-  setCurrentPage('landing');
-  setShowEarlySupporterToast(true);
+    if (userDetails?.email) {
+      try { await joinEarlyAccess(userDetails.email.toLowerCase()); } catch (e) { console.warn('Failed to mark early access', e); }
+    }
+    setHasJoinedEarlyAccess(true);
+    setCurrentPage('landing');
+    setShowEarlySupporterToast(true);
   };
+
+  // Fetch summary whenever landing is shown (in case of page reload state loss, future enhancement could persist userDetails externally)
+  useEffect(() => {
+    (async () => {
+      if (currentPage === 'landing' && userDetails?.email) {
+        try {
+          const summary = await userSummary(userDetails.email.toLowerCase());
+          setQuizTaken(summary.quizCount > 0);
+        } catch (e) {
+          console.warn('Failed to refresh summary', e);
+        }
+      }
+    })();
+  }, [currentPage, userDetails?.email]);
 
   const handleEarlyAccessCancel = () => {
     setCurrentPage(quizAnswers.length ? 'results' : 'landing');
@@ -122,9 +159,9 @@ function App() {
         <UserDetailsForm onSubmitted={handleUserDetailsSubmitted} />
       )}
       {currentPage === 'landing' && (
-    <LandingPage onStartQuiz={handleStartQuiz} onOpenFeedback={handleOpenFeedback} userDetails={userDetails} />
+  <LandingPage onStartQuiz={handleStartQuiz} onOpenFeedback={handleOpenFeedback} userDetails={userDetails} hasTakenQuiz={quizTaken} />
       )}
-      {currentPage === 'quiz' && <Quiz onComplete={handleQuizComplete} />}
+  {currentPage === 'quiz' && <Quiz onComplete={handleQuizComplete} onExit={() => setCurrentPage('landing')} />}
       {currentPage === 'results' && (
         <Results
           answers={quizAnswers}

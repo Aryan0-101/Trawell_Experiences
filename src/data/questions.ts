@@ -50,7 +50,7 @@ export const questions: Question[] = [
         description: "Just go with the flow and figure it out as I travel"
       }
     ],
-    multipleSelection: false
+  multipleSelection: true
   },
   {
     id: 2,
@@ -126,7 +126,7 @@ export const questions: Question[] = [
         description: "Just haven't had the need for a travel package yet"
       }
     ],
-    multipleSelection: false
+  multipleSelection: true
   },
   {
     id: 4,
@@ -164,7 +164,7 @@ export const questions: Question[] = [
         description: "The whole process just takes way too much time and energy"
       }
     ],
-    multipleSelection: false
+  multipleSelection: true
   },
   {
     id: 5,
@@ -190,6 +190,6 @@ export const questions: Question[] = [
         description: "I prefer my current way of planning"
       }
     ],
-    multipleSelection: false
+  multipleSelection: false
   }
 ];

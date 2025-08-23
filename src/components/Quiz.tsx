@@ -5,9 +5,10 @@ import { questions } from '../data/questions';
 
 interface QuizProps {
   onComplete: (answers: QuizAnswer[]) => void;
+  onExit?: () => void; // navigate back to landing
 }
 
-const Quiz: React.FC<QuizProps> = ({ onComplete }) => {
+const Quiz: React.FC<QuizProps> = ({ onComplete, onExit }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -78,7 +79,7 @@ const Quiz: React.FC<QuizProps> = ({ onComplete }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header with Progress */}
+      {/* Header with Progress & Exit */}
       <div className="bg-white/50 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-4">
@@ -86,9 +87,19 @@ const Quiz: React.FC<QuizProps> = ({ onComplete }) => {
               <img src="/logo.png" alt="Trawell" className="h-24 w-48 max-w-full max-h-32 rounded-lg object-contain" />
               <span className="text-xl font-semibold text-gray-800">Trawell Quiz</span>
             </div>
-            <span className="text-sm text-gray-600">
-              {currentQuestion + 1} of {questions.length}
-            </span>
+            <div className="flex items-center space-x-6">
+              <span className="text-sm text-gray-600">
+                {currentQuestion + 1} of {questions.length}
+              </span>
+              {onExit && (
+                <button
+                  onClick={onExit}
+                  className="text-sm text-gray-600 hover:text-gray-800 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                >
+                  Back
+                </button>
+              )}
+            </div>
           </div>
           
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -148,7 +159,7 @@ const Quiz: React.FC<QuizProps> = ({ onComplete }) => {
                   {option.description}
                 </p>
                 
-                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#013a4e] to-[#c45510] rounded-b-2xl transition-all duration-300 ${
+                <div className={`mt-4 h-1 w-full bg-gradient-to-r from-[#013a4e] to-[#c45510] rounded-full transition-all duration-300 ${
                   selectedOptions.includes(option.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-30'
                 }`}></div>
               </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, MapPin, Users, RefreshCw } from 'lucide-react';
+import { Star, MapPin, Users, Home as HomeIcon } from 'lucide-react';
 import { QuizAnswer, UserDetails } from '../App';
 
 interface ResultsProps {
@@ -142,14 +142,14 @@ const Results: React.FC<ResultsProps> = ({ answers, onRestart, onShareStory, onE
             </div>
           </div>
 
-          {/* Restart Quiz */}
+      {/* Home Navigation */}
           <div className="text-center">
             <button
               onClick={onRestart}
               className="flex items-center space-x-2 mx-auto text-gray-600 hover:text-gray-800 transition-colors"
             >
-              <RefreshCw className="w-5 h-5" />
-              <span>Take Quiz Again</span>
+        <HomeIcon className="w-5 h-5" />
+        <span>Home</span>
             </button>
           </div>
         </div>
