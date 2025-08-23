@@ -13,10 +13,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz, onOpenFeedback, 
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="px-6 py-3 bg-[#f5eede] border-b border-[#f5eede]">
+  <header className="px-6 py-1.5 md:py-2 bg-[#f5eede] border-b border-[#f5eede] -mb-4 md:-mb-6 relative z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 min-h-0">
           <div className="flex items-center min-w-0 max-w-xs flex-shrink-0">
-            <img src="/logo.png" alt="Trawell" className="h-32 w-auto max-w-[280px] object-contain rounded-xl" />
+            <img
+              src="/logo.png"
+              alt="Trawell"
+              className="h-24 sm:h-28 md:h-32 lg:h-36 w-auto object-contain rounded-xl transition-transform duration-300 -mb-3 md:-mb-4"
+            />
           </div>
           <div className="flex-1 flex items-center justify-end gap-6 min-w-0">
             {userDetails && (
@@ -34,13 +38,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStartQuiz, onOpenFeedback, 
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+  <main className="flex-1 flex items-center justify-center px-6 pt-4 pb-6 md:pt-8 md:pb-12">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
           {/* Left column: heading + CTA buttons */}
-          <div className="space-y-8">
-            <div className="space-y-6">
+          <div className="space-y-6 md:space-y-8">
+            <div className="space-y-4 md:space-y-6">
           
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-800 leading-tight">
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-800 leading-tight tracking-tight">
                 Help Us Understand
                 <span className="bg-gradient-to-r from-[#16434b] to-[#c55510] bg-clip-text text-transparent block">
                   Your Travel Needs

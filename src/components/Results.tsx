@@ -10,7 +10,7 @@ interface ResultsProps {
   userDetails: UserDetails | null;
 }
 
-const Results: React.FC<ResultsProps> = ({ answers, onRestart, onShareStory, onEarlyAccess, userDetails }) => {
+const Results: React.FC<ResultsProps> = ({ answers, onRestart, onShareStory, onEarlyAccess }) => {
   // Simple analysis based on answers
   const analyzeResults = () => {
     // This is a simplified analysis - in real app, you'd have more sophisticated logic
@@ -59,13 +59,14 @@ const Results: React.FC<ResultsProps> = ({ answers, onRestart, onShareStory, onE
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <div className="bg-white/50 backdrop-blur-sm border-b border-white/20">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex items-center space-x-3">
-            <img src="/logo.png" alt="Trawell" className="h-24 w-48 max-w-full max-h-32 rounded-lg object-contain" />
-            <span className="text-xl font-semibold text-gray-800">
-              Thank You{userDetails ? `, ${userDetails.name}` : ''} for Your Input!
-            </span>
+  <div className="bg-white/55 backdrop-blur-sm border-b border-white/20 -mb-6 md:-mb-8 relative z-10">
+    <div className="max-w-4xl mx-auto px-6 py-3 md:py-4">
+          <div className="flex items-center">
+            <img
+              src="/logo.png"
+              alt="Trawell"
+      className="h-32 sm:h-36 md:h-40 lg:h-48 w-auto object-contain -mb-5 md:-mb-7 drop-shadow-md transition-all"
+            />
           </div>
         </div>
       </div>

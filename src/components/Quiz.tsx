@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 import { QuizAnswer } from '../App';
 import { questions } from '../data/questions';
@@ -12,6 +12,8 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onExit }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+
+  const questionHeadingRef = useRef<HTMLHeadingElement | null>(null);
 
   const handleOptionSelect = (optionId: string) => {
     const question = questions[currentQuestion];
@@ -77,36 +79,54 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onExit }) => {
   const question = questions[currentQuestion];
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
+  // Scroll to top / question heading on mount & when question changes
+  useEffect(() => {
+    // Use heading ref if available for better alignment
+    const el = questionHeadingRef.current;
+    if (el) {
+      // Slight timeout to allow layout to settle after content change
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentQuestion]);
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header with Progress & Exit */}
-      <div className="bg-white/50 backdrop-blur-sm border-b border-white/20">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <img src="/logo.png" alt="Trawell" className="h-24 w-48 max-w-full max-h-32 rounded-lg object-contain" />
-              <span className="text-xl font-semibold text-gray-800">Trawell Quiz</span>
+      <div className="bg-white/60 backdrop-blur-sm border-b border-white/30">
+        <div className="max-w-4xl mx-auto px-6 py-3 md:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <img
+                src="/logo.png"
+                alt="Trawell"
+                className="h-24 sm:h-28 md:h-32 w-auto object-contain -mb-4 md:-mb-5 transition-all drop-shadow-sm"
+              />
             </div>
-            <div className="flex items-center space-x-6">
-              <span className="text-sm text-gray-600">
-                {currentQuestion + 1} of {questions.length}
-              </span>
-              {onExit && (
-                <button
-                  onClick={onExit}
-                  className="text-sm text-gray-600 hover:text-gray-800 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
-                >
-                  Back
-                </button>
-              )}
-            </div>
+            {onExit && (
+              <button
+                onClick={onExit}
+                className="text-sm text-gray-600 hover:text-gray-800 px-4 py-2 rounded-xl border border-gray-300/70 hover:bg-gray-50 transition-colors"
+              >
+                Back
+              </button>
+            )}
           </div>
-          
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-[#013a4e] to-[#c45510] h-2 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            ></div>
+          <div className="mt-1">
+            <div className="flex items-center justify-between mb-1">
+              <span className="inline-flex items-center gap-1 text-[0.7rem] sm:text-xs font-semibold tracking-wide text-[#013a4e] bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm ring-1 ring-[#013a4e]/10">
+                Q {currentQuestion + 1} / {questions.length}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200/80 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-[#013a4e] via-[#0d566d] to-[#c45510] h-2 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
           </div>
         </div>
       </div>
@@ -115,7 +135,7 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onExit }) => {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="max-w-4xl mx-auto w-full">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 leading-tight">
+            <h2 ref={questionHeadingRef} className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 leading-tight">
               {question.text}
             </h2>
             {question.subtitle && (

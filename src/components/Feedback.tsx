@@ -8,7 +8,7 @@ interface FeedbackProps {
   userDetails: UserDetails | null;
 }
 
-const Feedback: React.FC<FeedbackProps> = ({ onSubmitted, onCancel, onEarlyAccess, userDetails }) => {
+const Feedback: React.FC<FeedbackProps> = ({ onSubmitted, onCancel, onEarlyAccess }) => {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -27,12 +27,13 @@ const Feedback: React.FC<FeedbackProps> = ({ onSubmitted, onCancel, onEarlyAcces
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="bg-white/50 backdrop-blur-sm border-b border-white/20">
-        <div className="max-w-3xl mx-auto px-6 py-6 flex items-center space-x-3">
-          <img src="/logo.png" alt="Trawell" className="h-24 w-48 max-w-full max-h-32 rounded-lg object-contain" />
-          <span className="text-xl font-semibold text-gray-800">
-            Share Your Travel Story{userDetails ? `, ${userDetails.name}` : ''}
-          </span>
+      <div className="bg-white/55 backdrop-blur-sm border-b border-white/20 -mb-6 md:-mb-8 relative z-10">
+        <div className="max-w-3xl mx-auto px-6 py-3 md:py-4 flex items-center">
+          <img
+            src="/logo.png"
+            alt="Trawell"
+            className="h-32 sm:h-36 md:h-40 lg:h-44 w-auto object-contain -mb-5 md:-mb-6 drop-shadow-md"
+          />
         </div>
       </div>
 
