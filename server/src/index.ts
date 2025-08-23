@@ -8,6 +8,23 @@ import { z } from 'zod';
 const app = express();
 const prisma = new PrismaClient();
 
+// Helper to send richer error detail during temporary debugging (do NOT keep long-term)
+function sendError(res: Response, userMessage: string, err: any) {
+  // Always log full error server-side
+  console.error(userMessage, err);
+  // Expose limited diagnostics; safe codes/meta for PrismaKnownRequestError
+  const payload: any = { error: userMessage };
+  if (err && typeof err === 'object') {
+    if (err.code) payload.code = err.code;
+    if (err.meta) payload.meta = err.meta;
+    if (process.env.NODE_ENV !== 'production') {
+      payload.stack = err.stack;
+      payload.message = err.message;
+    }
+  }
+  res.status(500).json(payload);
+}
+
 app.use(cors({ origin: true }));
 app.use(express.json());
 
@@ -51,9 +68,8 @@ app.post('/api/users', async (req: Request, res: Response) => {
       create: { name, email, phone },
     });
     res.json(user);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to upsert user' });
+  } catch (e: any) {
+    sendError(res, 'Failed to upsert user', e);
   }
 });
 
@@ -71,9 +87,8 @@ app.post('/api/users/:email/quiz', async (req: Request, res: Response) => {
   const toInsert = (answers.data as QuizAnswer[]).map((a: QuizAnswer) => ({ userId: user.id, questionId: a.questionId, selectedOptions: JSON.stringify(a.selectedOptions) }));
   await prisma.quizAnswer.createMany({ data: toInsert });
     res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to save quiz answers' });
+  } catch (e: any) {
+    sendError(res, 'Failed to save quiz answers', e);
   }
 });
 
@@ -85,9 +100,8 @@ app.get('/api/users/:email/quiz/exists', async (req: Request, res: Response) => 
     if (!user) return res.json({ exists: false });
     const count = await prisma.quizAnswer.count({ where: { userId: user.id } });
     res.json({ exists: count > 0 });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to check quiz answers' });
+  } catch (e: any) {
+    sendError(res, 'Failed to check quiz answers', e);
   }
 });
 
@@ -108,9 +122,8 @@ app.post('/api/users/:email/story', async (req: Request, res: Response) => {
       story = await prisma.story.create({ data: { userId: user.id, text: parse.data.text } });
     }
     res.json({ replaced: Boolean(existing), story });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to save story' });
+  } catch (e: any) {
+    sendError(res, 'Failed to save story', e);
   }
 });
 
@@ -122,9 +135,8 @@ app.get('/api/users/:email/story/exists', async (req: Request, res: Response) =>
     if (!user) return res.json({ exists: false });
     const count = await prisma.story.count({ where: { userId: user.id } });
     res.json({ exists: count > 0 });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to check story' });
+  } catch (e: any) {
+    sendError(res, 'Failed to check story', e);
   }
 });
 
@@ -134,9 +146,8 @@ app.get('/api/users/:email/early-access/exists', async (req: Request, res: Respo
   try {
     const user = await prisma.user.findUnique({ where: { email }, select: { earlyAccessApplied: true } });
     res.json({ exists: Boolean(user?.earlyAccessApplied) });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to check early access' });
+  } catch (e: any) {
+    sendError(res, 'Failed to check early access', e);
   }
 });
 
@@ -151,9 +162,8 @@ app.post('/api/users/:email/early-access', async (req: Request, res: Response) =
     }
     const updated = await prisma.user.update({ where: { email }, data: { earlyAccessApplied: true, earlyAccessAt: new Date() } });
     res.json({ already: false, user: updated });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to mark early access' });
+  } catch (e: any) {
+    sendError(res, 'Failed to mark early access', e);
   }
 });
 
@@ -168,9 +178,8 @@ app.get('/api/users/:email/summary', async (req: Request, res: Response) => {
       prisma.story.count({ where: { userId: user.id } })
     ]);
     res.json({ found: true, quizCount, storyCount });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to get summary' });
+  } catch (e: any) {
+    sendError(res, 'Failed to get summary', e);
   }
 });
 
@@ -185,9 +194,20 @@ app.get('/api/users/:email', async (req: Request, res: Response) => {
       prisma.story.count({ where: { userId: user.id } })
     ]);
     res.json({ user, quizCount, storyCount });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to fetch user' });
+  } catch (e: any) {
+    sendError(res, 'Failed to fetch user', e);
+  }
+});
+
+// Temporary debug endpoint (remove after diagnosing) to verify DB connectivity & table counts
+app.get('/api/debug/status', async (_req: Request, res: Response) => {
+  try {
+    const userCount = await prisma.user.count();
+    const quizCount = await prisma.quizAnswer.count();
+    const storyCount = await prisma.story.count();
+    res.json({ ok: true, userCount, quizCount, storyCount, db: process.env.DATABASE_URL ? 'configured' : 'missing env' });
+  } catch (e: any) {
+    sendError(res, 'Failed debug status', e);
   }
 });
 
