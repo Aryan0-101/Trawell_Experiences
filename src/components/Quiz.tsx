@@ -13,6 +13,7 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onExit }) => {
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
+  // Ref kept in case we want targeted focus later, but scrolling now targets full window top
   const questionHeadingRef = useRef<HTMLHeadingElement | null>(null);
 
   const handleOptionSelect = (optionId: string) => {
@@ -79,18 +80,11 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onExit }) => {
   const question = questions[currentQuestion];
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
-  // Scroll to top / question heading on mount & when question changes
+  // Always scroll the full window to the very top when the question changes so header stays visible
   useEffect(() => {
-    // Use heading ref if available for better alignment
-    const el = questionHeadingRef.current;
-    if (el) {
-      // Slight timeout to allow layout to settle after content change
-      requestAnimationFrame(() => {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    } else {
+    requestAnimationFrame(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    });
   }, [currentQuestion]);
 
   return (
