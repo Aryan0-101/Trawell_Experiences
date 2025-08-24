@@ -103,7 +103,7 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onExit }) => {
               <img
                 src="/logo.png"
                 alt="Trawell"
-                className="h-24 sm:h-28 md:h-32 w-auto object-contain -mb-4 md:-mb-5 transition-all drop-shadow-sm"
+                className="h-28 sm:h-32 md:h-40 lg:h-48 w-auto object-contain rounded-xl transition-transform duration-300 -mb-2 md:-mb-7 drop-shadow"
               />
             </div>
             {onExit && (
@@ -115,9 +115,9 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onExit }) => {
               </button>
             )}
           </div>
-          <div className="mt-1">
+          <div className="-mt-1">
             <div className="flex items-center justify-between mb-1">
-              <span className="inline-flex items-center gap-1 text-[0.7rem] sm:text-xs font-semibold tracking-wide text-[#013a4e] bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm ring-1 ring-[#013a4e]/10">
+              <span className="inline-flex items-center gap-1 text-[0.7rem] sm:text-xs font-semibold tracking-wide text-[#013a4e] bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm ring-1 ring-[#013a4e]/10 mb-1">
                 Q {currentQuestion + 1} / {questions.length}
               </span>
             </div>

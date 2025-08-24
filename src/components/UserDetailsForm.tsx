@@ -31,18 +31,16 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({ onSubmitted }) => {
       <div className="w-full max-w-2xl bg-white/95 rounded-3xl shadow-xl md:shadow-2xl border border-[#f3e0c7] flex flex-col p-0 overflow-hidden backdrop-blur-sm">
         <form onSubmit={submit} className="w-full flex flex-col gap-6 px-5 sm:px-7 md:px-10 pt-6 pb-8 md:py-10">
           {/* Logo & Tagline */}
-          <div className="flex flex-col items-center mb-4 md:mb-6">
-            <div className="flex items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-[#f3e0c7]/60 p-2 mb-3">
-              <img
-                src="/logo.png"
-                alt="Trawell"
-                className="h-14 w-auto sm:h-16 md:h-18 object-contain drop-shadow-sm"
-              />
-            </div>
-            <p className="text-[0.65rem] sm:text-xs md:text-sm text-[#234857]/80 font-semibold uppercase tracking-wider">Personalized Travel Preferences</p>
+          <div className="flex flex-col items-center -mt-3 -mb-2 md:mb-3">
+            <img
+              src="/logo.png"
+              alt="Trawell"
+              className="h-24 sm:h-28 md:h-32 w-auto object-contain -mb-1 md:-mb-5 transition-all drop-shadow-sm"
+            />
+            <p className="mt-2 text-[0.65rem] sm:text-xs md:text-sm text-[#234857]/80 font-bold uppercase tracking-wider">Personalized Travel Preferences</p>
           </div>
-          <div className="text-center -mt-1 mb-2">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#b64805] tracking-tight mb-3">
+          <div className="text-center mt-0 mb-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#003349] tracking-tight mb-3">
               Let's Get Started
             </h2>
             <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-xl mx-auto">
